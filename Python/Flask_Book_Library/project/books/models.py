@@ -13,15 +13,25 @@ class Book(db.Model):
     status = db.Column(db.String(20), default='available')
 
     def __init__(self, name, author, year_published, book_type, status='available'):
-        self.name = name
-        self.author = author
+        self.name = self.validate_book_name(name)
+        self.author = self.validate_book_author(author)
         self.year_published = year_published
         self.book_type = book_type
         self.status = status
 
     def __repr__(self):
         return f"Book(ID: {self.id}, Name: {self.name}, Author: {self.author}, Year Published: {self.year_published}, Type: {self.book_type}, Status: {self.status})"
+    
+    def validate_book_name(self, name):
+        if re.fullmatch(r'[a-zA-Z0-9\s\-,:\'".!?]{1,30}', name) is None:
+            raise ValueError('Incorrect book name')
+        return name
+    
+    def validate_book_author(self, author):
+        if re.fullmatch(r'[a-zA-Z0-9\s\-,:\'"]{2,20}', author) is None:
+            raise ValueError('Incorrect book author')
+        return author
 
-
+        
 with app.app_context():
     db.create_all()
